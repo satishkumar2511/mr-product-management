@@ -16,7 +16,7 @@ export const mrService = appApi.injectEndpoints({
     getAllMRList: builder.query({
       query: () => {
         return {
-          url: "http://localhost:3001/mr/getMRList",
+          url: "/mr/getMRList",
           method: "GET",
         };
       },

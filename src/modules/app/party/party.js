@@ -1,39 +1,219 @@
-import React from "react";
-import { Box, Button, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { path } from "../../../utils/constant";
-import { useTranslation } from "react-i18next";
+import * as React from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Close";
+import { useGetAllPartyListQuery } from "../../../store/api/partyService";
+import {
+  GridRowModes,
+  DataGrid,
+  GridToolbarContainer,
+  GridActionsCellItem,
+  GridRowEditStopReasons,
+} from "@mui/x-data-grid";
+import {
+  randomId,
+} from "@mui/x-data-grid-generator";
 
-function Party() {
-  const navigate = useNavigate();
-  const { t } = useTranslation();
+
+function EditToolbar(props) {
+  const { setRows, setRowModesModel } = props;
+
+  const handleClick = () => {
+    const id = randomId();
+    setRows((oldRows) => [...oldRows, { id, name: "", age: "", isNew: true }]);
+    setRowModesModel((oldModel) => ({
+      ...oldModel,
+      [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
+    }));
+  };
 
   return (
-    <Box sx={style.container}>
-      <Typography variant="h2">{t("page_name")}</Typography>
-      <Typography variant="h4">react-mui-kickstarter</Typography>
-      <Typography variant="h5">
-        Setup is ready for React, Eslint, Mui, i18next, Redux, Navigation
-      </Typography>
-      <Typography variant="h6">
-        Start to edit app from{" "}
-        <i>
-          <b>src/modules/app/playground</b>
-        </i>
-      </Typography>
-      <Button variant="contained" onClick={() => navigate(path.HOME_PAGE)}>
-        Go to dashboard
+    <GridToolbarContainer>
+      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
+        Add New MR
       </Button>
+    </GridToolbarContainer>
+  );
+}
+
+function Party() {
+  const {data, isLoading} = useGetAllPartyListQuery({});
+  const [rows, setRows] = React.useState([]);
+  //const mrResponse =  useGetAllMRListQuery({});
+  // const getMRListData = async () => {
+   
+  // }
+  console.log("with start isLoading");
+  console.log(isLoading);
+
+  React.useEffect(() => {
+    //setIsLoading(true);
+    
+    console.log("with end isLoading");
+    console.log(isLoading);
+    //setIsLoading(false);
+    console.log("partyResponse");
+    console.log(data);
+    if(data != null)
+    {
+      let partyResponse = data.results.map((item) => 
+      Object.assign({}, item, {id:item._id})
+      );
+      // for (let index = 0; index < data.results.length; index++) {
+      //   doctorResponse.push(data.results[index]);
+      //   doctorResponse[index]['id'] = data.results[index]._id;
+      // }
+      console.log("setting row data");
+      console.log(partyResponse);
+      setRows(partyResponse);
+    }
+    
+  
+  }, [isLoading, data])
+  
+  
+  
+  const [rowModesModel, setRowModesModel] = React.useState({});
+
+  const handleRowEditStop = (params, event) => {
+    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+      event.defaultMuiPrevented = true;
+    }
+  };
+
+  const handleEditClick = (id) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
+
+  const handleSaveClick = (id) => () => {
+    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  };
+
+  const handleDeleteClick = (id) => () => {
+    setRows(rows.filter((row) => row.id !== id));
+  };
+
+  const handleCancelClick = (id) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [id]: { mode: GridRowModes.View, ignoreModifications: true },
+    });
+
+    const editedRow = rows.find((row) => row.id === id);
+    if (editedRow.isNew) {
+      setRows(rows.filter((row) => row.id !== id));
+    }
+  };
+
+  const processRowUpdate = (newRow) => {
+    const updatedRow = { ...newRow, isNew: false };
+    setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+    return updatedRow;
+  };
+
+  const handleRowModesModelChange = (newRowModesModel) => {
+    setRowModesModel(newRowModesModel);
+  };
+
+  const columns = [
+    { field: "party_id", headerName: "Party Id", width: 180, editable: true },
+    {
+      field: "party_name",
+      headerName: "Party Name",
+      width: 180,
+      align: "left",
+      headerAlign: "left",
+      editable: true,
+    },
+    { field: "mr_id", headerName: "MR Id", width: 180, editable: true },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 100,
+      cellClassName: "actions",
+      getActions: ({ _id }) => {
+        const isInEditMode = rowModesModel[_id]?.mode === GridRowModes.Edit;
+
+        if (isInEditMode) {
+          return [
+            <GridActionsCellItem
+            key={_id}
+              icon={<SaveIcon />}
+              label="Save"
+              sx={{
+                color: "primary.main",
+              }}
+              onClick={handleSaveClick(_id)}
+            />,
+            <GridActionsCellItem
+            key={_id}
+              icon={<CancelIcon />}
+              label="Cancel"
+              className="textPrimary"
+              onClick={handleCancelClick(_id)}
+              color="inherit"
+            />,
+          ];
+        }
+
+        return [
+          <GridActionsCellItem
+          key={_id}
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={handleEditClick(_id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+          key={_id}
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={handleDeleteClick(_id)}
+            color="inherit"
+          />,
+        ];
+      },
+    },
+  ];
+
+  return (
+    data?.results.length > 0 &&
+    <Box
+      sx={{
+        height: 500,
+        width: "100%",
+        "& .actions": {
+          color: "text.secondary",
+        },
+        "& .textPrimary": {
+          color: "text.primary",
+        },
+      }}
+    >
+      <DataGrid
+        rows={rows}
+        columns={columns}
+        editMode="row"
+        rowModesModel={rowModesModel}
+        onRowModesModelChange={handleRowModesModelChange}
+        onRowEditStop={handleRowEditStop}
+        processRowUpdate={processRowUpdate}
+        slots={{
+          toolbar: EditToolbar,
+        }}
+        slotProps={{
+          toolbar: { setRows, setRowModesModel },
+        }}
+        
+      />
     </Box>
   );
 }
-const style = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    minHeight: "80vh",
-    flexDirection: "column",
-  },
-};
+
 export default Party;

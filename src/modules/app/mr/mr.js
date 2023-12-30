@@ -19,55 +19,6 @@ import {
   randomId,
 } from "@mui/x-data-grid-generator";
 
-// const roles = ["Market", "Finance", "Development"];
-// const randomRole = () => {
-//   return randomArrayItem(roles);
-// };
-
-// const initialRows = [
-//   {
-//     id: randomId(),
-//     name: 'satish',
-//     age: 25,
-//     joinDate: randomCreatedDate(),
-//     role: randomRole(),
-//   },
-//   {
-//     id: randomId(),
-//     name: randomTraderName(),
-//     age: 25,
-//     joinDate: randomCreatedDate(),
-//     role: randomRole(),
-//   },
-//   {
-//     id: randomId(),
-//     name: randomTraderName(),
-//     age: 36,
-//     joinDate: randomCreatedDate(),
-//     role: randomRole(),
-//   },
-//   {
-//     id: randomId(),
-//     name: randomTraderName(),
-//     age: 19,
-//     joinDate: randomCreatedDate(),
-//     role: randomRole(),
-//   },
-//   {
-//     id: randomId(),
-//     name: randomTraderName(),
-//     age: 28,
-//     joinDate: randomCreatedDate(),
-//     role: randomRole(),
-//   },
-//   {
-//     id: randomId(),
-//     name: randomTraderName(),
-//     age: 23,
-//     joinDate: randomCreatedDate(),
-//     role: randomRole(),
-//   },
-// ];
 
 function EditToolbar(props) {
   const { setRows, setRowModesModel } = props;
@@ -93,25 +44,42 @@ function EditToolbar(props) {
 function MR() {
   //const navigate = useNavigate();
   //const { t } = useTranslation();
-  const [isLoading, setIsLoading] = React.useState(false)
-  //const {mrResponse, isLoading} = useState([])
-  const [rows, setRows] = React.useState({});
-  
-  const getMRListData = async () => {
-    const mrResponse = await useGetAllMRListQuery({});
-    console.log("with key");
-    console.log(mrResponse);
-    setIsLoading(false);
-    setRows(mrResponse?.results);
-  }
+  //const [isLoading, setIsLoading] = React.useState(false)
+  const {data, isLoading} = useGetAllMRListQuery({});
+  const [rows, setRows] = React.useState([]);
+  //const mrResponse =  useGetAllMRListQuery({});
+  // const getMRListData = async () => {
+   
+  // }
+  console.log("with start isLoading");
+  console.log(isLoading);
 
   React.useEffect(() => {
-    setIsLoading(true);
-    getMRListData();
+    //setIsLoading(true);
+    
+    console.log("with end isLoading");
+    console.log(isLoading);
+    //setIsLoading(false);
+    console.log("mrResponse");
+    console.log(data);
+    if(data != null)
+    {
+      let mrResponse = data.results.map((item) => 
+      Object.assign({}, item, {id:item._id})
+      );
+      // for (let index = 0; index < data.results.length; index++) {
+      //   doctorResponse.push(data.results[index]);
+      //   doctorResponse[index]['id'] = data.results[index]._id;
+      // }
+      console.log("setting row data");
+      console.log(mrResponse);
+      setRows(mrResponse);
+    }
+    
     // if(mrResponse != undefined){
     // setRows(mrResponse?.results);
     // }
-  }, [])
+  }, [isLoading, data])
   //console.log(responseWithKey(mrResponse.results));
   
   
@@ -228,7 +196,7 @@ function MR() {
   ];
 
   return (
-    !isLoading &&
+    data?.results.length > 0 &&
     <Box
       sx={{
         height: 500,
