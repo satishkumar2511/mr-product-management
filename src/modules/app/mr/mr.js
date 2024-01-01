@@ -1,97 +1,37 @@
-
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
 import { useGetAllMRListQuery } from "../../../store/api/mrService";
 import {
-  GridRowModes,
   DataGrid,
   GridToolbarContainer,
   GridActionsCellItem,
   GridRowEditStopReasons,
+  GridToolbar 
 } from "@mui/x-data-grid";
-import {
-  randomId,
-} from "@mui/x-data-grid-generator";
-
-
-function EditToolbar(props) {
-  const { setRows, setRowModesModel } = props;
-
-  const handleClick = () => {
-    const id = randomId();
-    setRows((oldRows) => [...oldRows, { id, name: "", age: "", isNew: true }]);
-    setRowModesModel((oldModel) => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
-    }));
-  };
-
-  return (
-    <GridToolbarContainer>
-      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add New MR
-      </Button>
-    </GridToolbarContainer>
-  );
-}
+import AddEditModal from "./AddEditModal";
 
 function MR() {
-  //const navigate = useNavigate();
-  //const { t } = useTranslation();
-  //const [isLoading, setIsLoading] = React.useState(false)
-  const {data, isLoading} = useGetAllMRListQuery({});
+  const { data, isLoading, refetch } = useGetAllMRListQuery(
+    {},
+    { refetchOnMountOrArgChange: true }
+  );
   const [rows, setRows] = React.useState([]);
-  //const mrResponse =  useGetAllMRListQuery({});
-  // const getMRListData = async () => {
-   
-  // }
-  console.log("with start isLoading");
-  console.log(isLoading);
+  const [rowModesModel, setRowModesModel] = React.useState({});
+  const [isOpenModal, setIsOpenModal] = React.useState(false);
+  const [selectedRow, setSelectedRow] = React.useState(null);
 
   React.useEffect(() => {
-    //setIsLoading(true);
-    
-    console.log("with end isLoading");
-    console.log(isLoading);
-    //setIsLoading(false);
-    console.log("mrResponse");
-    console.log(data);
-    if(data != null)
-    {
-      let mrResponse = data.results.map((item) => 
-      Object.assign({}, item, {id:item._id})
+    if (data != null) {
+      let mrResponse = data.results.map((item) =>
+        Object.assign({}, item, { id: item._id })
       );
-      // for (let index = 0; index < data.results.length; index++) {
-      //   doctorResponse.push(data.results[index]);
-      //   doctorResponse[index]['id'] = data.results[index]._id;
-      // }
-      console.log("setting row data");
-      console.log(mrResponse);
       setRows(mrResponse);
     }
-    
-    // if(mrResponse != undefined){
-    // setRows(mrResponse?.results);
-    // }
-  }, [isLoading, data])
-  //console.log(responseWithKey(mrResponse.results));
-  
-  
-  const [rowModesModel, setRowModesModel] = React.useState({});
-
-  // const responseWithKey = (items) => {
-  //   for (let index = 0; index < items.length; index++) {
-  //     items[index].key = items[index]._id
-      
-  //   }
-  // return items;
-  // }
+  }, [isLoading, data]);
 
   const handleRowEditStop = (params, event) => {
     if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -99,28 +39,18 @@ function MR() {
     }
   };
 
-  const handleEditClick = (id) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
-  };
-
-  const handleSaveClick = (id) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  const handleEditClick = (row) => () => {
+    setSelectedRow(row);
+    setIsOpenModal(true);
+    //setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
 
   const handleDeleteClick = (id) => () => {
-    setRows(rows.filter((row) => row.id !== id));
-  };
+    //setRows(rows.filter((row) => row.id !== id));
+    alert(`are you sure you want to delete ${id}`);
 
-  const handleCancelClick = (id) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
-
-    const editedRow = rows.find((row) => row.id === id);
-    if (editedRow.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
-    }
+    // call below functions once delete api exicuted successfully
+    refetch();
   };
 
   const processRowUpdate = (newRow) => {
@@ -134,14 +64,17 @@ function MR() {
   };
 
   const columns = [
-    { field: "mr_first_name", headerName: "First Name", width: 180, editable: true },
+    {
+      field: "mr_first_name",
+      headerName: "First Name",
+      width: 180,
+    },
     {
       field: "mr_last_name",
       headerName: "Last Name",
       width: 180,
       align: "left",
       headerAlign: "left",
-      editable: true,
     },
     {
       field: "actions",
@@ -149,45 +82,21 @@ function MR() {
       headerName: "Actions",
       width: 100,
       cellClassName: "actions",
-      getActions: ({ _id }) => {
-        const isInEditMode = rowModesModel[_id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-            key={_id}
-              icon={<SaveIcon />}
-              label="Save"
-              sx={{
-                color: "primary.main",
-              }}
-              onClick={handleSaveClick(_id)}
-            />,
-            <GridActionsCellItem
-            key={_id}
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelClick(_id)}
-              color="inherit"
-            />,
-          ];
-        }
-
+      getActions: ({ row }) => {
         return [
           <GridActionsCellItem
-          key={_id}
+            key={row._id}
             icon={<EditIcon />}
             label="Edit"
             className="textPrimary"
-            onClick={handleEditClick(_id)}
+            onClick={handleEditClick(row)}
             color="inherit"
           />,
           <GridActionsCellItem
-          key={_id}
+            key={row._id}
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={handleDeleteClick(_id)}
+            onClick={handleDeleteClick(row._id)}
             color="inherit"
           />,
         ];
@@ -195,46 +104,79 @@ function MR() {
     },
   ];
 
+  const EditToolbar = (props) => {
+    // const { setRows, setRowModesModel } = props;
+    return (
+      <GridToolbarContainer>
+        <Button
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => setIsOpenModal(true)}
+        >
+          Add New MR
+        </Button>
+      </GridToolbarContainer>
+    );
+  };
+  const handleCloseModal = () => {
+    setIsOpenModal(false);
+    setSelectedRow(null);
+  };
+  const handleSave = (data) => {
+    console.log("data: ", data);
+    if (selectedRow) {
+      // write api for update record
+    } else {
+      // write api for add record
+    }
+
+    // call below functions once add/edit api exicuted successfully
+    refetch();
+    handleCloseModal();
+  };
   return (
-    data?.results.length > 0 &&
-    <Box
-      sx={{
-        height: 500,
-        width: "100%",
-        "& .actions": {
-          color: "text.secondary",
-        },
-        "& .textPrimary": {
-          color: "text.primary",
-        },
-      }}
-    >
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
-        processRowUpdate={processRowUpdate}
-        slots={{
-          toolbar: EditToolbar,
+    data?.results.length > 0 && (
+      <Box
+        sx={{
+          height: 500,
+          width: "100%",
+          "& .actions": {
+            color: "text.secondary",
+          },
+          "& .textPrimary": {
+            color: "text.primary",
+          },
         }}
-        slotProps={{
-          toolbar: { setRows, setRowModesModel },
-        }}
+      >
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          // editMode="row"
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={handleRowModesModelChange}
+          onRowEditStop={handleRowEditStop}
+          processRowUpdate={processRowUpdate}
+          slots={{
+            toolbar: GridToolbar,
+            panel: EditToolbar
+          }}
+          slotProps={{
+            toolbar: {showQuickFilter: true, setRows, setRowModesModel },
+          }}
+          // disableColumnFilter
+          // disableColumnSelector
+          // disableDensitySelector
+        />
         
-      />
-    </Box>
+        <AddEditModal
+          open={isOpenModal}
+          handleClose={handleCloseModal}
+          initData={selectedRow}
+          handleSave={handleSave}
+        />
+      </Box>
+    )
   );
 }
-// const style = {
-//   container: {
-//     display: "flex",
-//     justifyContent: "center",
-//     alignItems: "center",
-//     minHeight: "80vh",
-//     flexDirection: "column",
-//   },
-// };
+
 export default MR;

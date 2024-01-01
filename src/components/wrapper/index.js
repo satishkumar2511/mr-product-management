@@ -61,8 +61,7 @@ const MainTemplateContainer = ({ children, toggleTheme }) => {
   const theme = useTheme();
 
   const [isOpenDrawer, setIsOpenDrawer] = useState(true);
-  const { data } = useGetUserDetailsQuery({});
-  console.log("data: ", data);
+  // const { data } = useGetUserDetailsQuery({});
 
   const handleDrawerClose = () => {
     setIsOpenDrawer(false);
@@ -71,36 +70,36 @@ const MainTemplateContainer = ({ children, toggleTheme }) => {
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
       {/* <React.Fragment key={"left"}> */}
-        <AppHeader
-          toggleTheme={toggleTheme}
-          toggleDrawer={() => setIsOpenDrawer(!isOpenDrawer)}
+      <AppHeader
+        toggleTheme={toggleTheme}
+        toggleDrawer={() => setIsOpenDrawer(!isOpenDrawer)}
+        open={isOpenDrawer}
+      />
+      <Drawer
+        variant="permanent"
+        anchor={"left"}
+        open={isOpenDrawer}
+        //onClose={handleDrawerClose}
+      >
+        <DrawerHeader>
+          <IconButton onClick={handleDrawerClose}>
+            {theme.direction === "rtl" ? (
+              <ChevronRightIcon />
+            ) : (
+              <ChevronLeftIcon />
+            )}
+          </IconButton>
+        </DrawerHeader>
+        <Divider />
+        <AppMenu
+          anchor={"left"}
+          // toggleDrawer={() => setIsOpenDrawer(false)}
           open={isOpenDrawer}
         />
-        <Drawer
-          variant="permanent"
-          anchor={"left"}
-          open={isOpenDrawer}
-          //onClose={handleDrawerClose}
-        >
-          <DrawerHeader>
-            <IconButton onClick={handleDrawerClose}>
-              {theme.direction === "rtl" ? (
-                <ChevronRightIcon />
-              ) : (
-                <ChevronLeftIcon />
-              )}
-            </IconButton>
-          </DrawerHeader>
-          <Divider />
-          <AppMenu
-            anchor={"left"}
-           // toggleDrawer={() => setIsOpenDrawer(false)}
-            open={isOpenDrawer}
-          />
-        </Drawer>
-        <Box sx={sxStyles.container} component="main">
-          {children}
-        </Box>
+      </Drawer>
+      <Box sx={sxStyles.container} component="main">
+        {children}
+      </Box>
       {/* </React.Fragment> */}
     </Box>
   );
