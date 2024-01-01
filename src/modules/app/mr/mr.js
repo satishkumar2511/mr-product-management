@@ -10,6 +10,7 @@ import {
   GridToolbarContainer,
   GridActionsCellItem,
   GridRowEditStopReasons,
+  GridToolbar 
 } from "@mui/x-data-grid";
 import AddEditModal from "./AddEditModal";
 
@@ -156,11 +157,15 @@ function MR() {
           onRowEditStop={handleRowEditStop}
           processRowUpdate={processRowUpdate}
           slots={{
-            toolbar: EditToolbar,
+            toolbar: GridToolbar,
+            panel: EditToolbar
           }}
           slotProps={{
-            toolbar: { setRows, setRowModesModel },
+            toolbar: {showQuickFilter: true, setRows, setRowModesModel },
           }}
+          // disableColumnFilter
+          // disableColumnSelector
+          // disableDensitySelector
         />
         
         <AddEditModal
