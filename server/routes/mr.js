@@ -2,6 +2,7 @@ import express from 'express'
 import db from '../db.js'
 import mongo from 'mongodb'
 import { VerifyToken } from '../helper/verifyToken.js'
+import { GetUserModel, GetMRModel } from '../models/models.js'
 
 const router = express.Router()
 // const objectId = new ObjectId();
@@ -69,8 +70,22 @@ router.get('/getMRDetails/:id', async (req, res) => {
 
 // Add a new document to the collection
 router.post('/addMRAndCreateUser', async (req, res) => {
+  let user_collection = db.collection('user_master')
+  let user_Document = GetUserModel('6579ee489285026e3374cc17')
+  user_Document.user_first_name = req.body.mr_first_name
+  user_Document.user_last_name = req.body.mr_last_name
+  user_Document.email = req.body.email
+  user_Document.password = req.body.password
+
+  let user_result = await user_collection.insertOne(user_Document)
+
   let collection = db.collection('mr_master')
-  let newDocument = req.body
+  let mRDocument = GetMRModel('6579ee489285026e3374cc17')
+  mRDocument.user_id = user_result._id
+  mRDocument.mr_first_name = req.body.mr_first_name
+  mRDocument.mr_last_name = req.body.mr_last_name
+  mRDocument.email = req.body.email
+  mRDocument.password = req.body.password
 
   newDocument.createdAt = new Date()
   let result = await collection.insertOne(newDocument)

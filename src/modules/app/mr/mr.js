@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import { useGetAllMRListQuery } from "../../../store/api/mrService";
+import { useGetAllMRListQuery, useAddUpdateMRMutation } from "../../../store/api/mrService";
 import {
   DataGrid,
   GridToolbarContainer,
@@ -77,6 +77,20 @@ function MR() {
       headerAlign: "left",
     },
     {
+      field: "email",
+      headerName: "Email",
+      width: 180,
+      align: "left",
+      headerAlign: "left",
+    },
+    {
+      field: "password",
+      headerName: "Password",
+      width: 180,
+      align: "left",
+      headerAlign: "left",
+    },
+    {
       field: "actions",
       type: "actions",
       headerName: "Actions",
@@ -128,6 +142,7 @@ function MR() {
       // write api for update record
     } else {
       // write api for add record
+      const { data, isLoading } = useAddUpdateMRMutation(data);
     }
 
     // call below functions once add/edit api exicuted successfully

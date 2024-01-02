@@ -93,6 +93,26 @@ export default function AddEditModal({
             fullWidth
             name="mr_last_name"
             value={mrDetails?.mr_last_name || ""}
+            sx={style.inputField}
+            onChange={handleChange}
+          />
+          <TextField
+            id="outlined-basic"
+            label="Email"
+            variant="outlined"
+            fullWidth
+            name="email"
+            value={mrDetails?.email || ""}
+            sx={style.inputField}
+            onChange={handleChange}
+          />
+           <TextField
+            id="outlined-basic"
+            label="Password"
+            variant="outlined"
+            fullWidth
+            name="password"
+            value={mrDetails?.password || ""}
             onChange={handleChange}
           />
         </Box>

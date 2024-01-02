@@ -3,16 +3,16 @@ import { appApi } from "../appApi";
 export const mrService = appApi.injectEndpoints({
   endpoints: (builder) => ({
     // Login Authentication
-    // getAllMR: builder.mutation({
-    //   query: (body) => {
-    //     return {
-    //       url: "/mr/getMRList",
-    //       method: "POST",
-    //       body: body,
-    //     };
-    //   },
-    //   invalidatesTags: ["UserAuth"],
-    // }),
+    addUpdateMR: builder.mutation({
+      query: (body) => {
+        return {
+          url: "/mr/addMRAndCreateUser",
+          method: "POST",
+          body: body,
+        };
+      },
+      invalidatesTags: ["UserAuth"],
+    }),
     getAllMRList: builder.query({
       query: () => {
         return {
@@ -49,6 +49,7 @@ export const mrService = appApi.injectEndpoints({
 
 export const {
   useGetAllMRListQuery,
+  useAddUpdateMRMutation,
   // useGetUserDetailsQuery,
   // useUpdateUserMutation,
   // useDeleteUserMutation,
