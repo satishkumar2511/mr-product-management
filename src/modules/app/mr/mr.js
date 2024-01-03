@@ -4,13 +4,18 @@ import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import { useGetAllMRListQuery, useAddUpdateMRMutation } from "../../../store/api/mrService";
+import {
+  useGetAllMRListQuery,
+  useAddMRMutation,
+  useUpdateMRMutation,
+  useDeleteMRMutation,
+} from "../../../store/api/mrService";
 import {
   DataGrid,
   GridToolbarContainer,
   GridActionsCellItem,
   GridRowEditStopReasons,
-  GridToolbar 
+  GridToolbar,
 } from "@mui/x-data-grid";
 import AddEditModal from "./AddEditModal";
 
@@ -19,6 +24,10 @@ function MR() {
     {},
     { refetchOnMountOrArgChange: true }
   );
+  const [addMR, { isLoading: isMrAdding }] = useAddMRMutation();
+  const [updateMR, { isLoading: isMrUpdating }] = useUpdateMRMutation();
+  const [deleteMR, { isLoading: isMrDeleting }] = useDeleteMRMutation();
+
   const [rows, setRows] = React.useState([]);
   const [rowModesModel, setRowModesModel] = React.useState({});
   const [isOpenModal, setIsOpenModal] = React.useState(false);
@@ -44,13 +53,45 @@ function MR() {
     setIsOpenModal(true);
     //setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
+  const handleCloseModal = () => {
+    setIsOpenModal(false);
+    setSelectedRow(null);
+  };
+  const handleSave = async (data) => {
+    console.log("data: ", data);
+    if (selectedRow) {
+      // write api for update record
+      try {
+        await updateMR(data);
+        refetch();
+        handleCloseModal();
+      } catch (error) {
+        console.log("error: ", error);
+      }
+    } else {
+      // write api for add record
+      try {
+       const res = await addMR(data);
+       console.log('res: ', res);
+        refetch();
+        handleCloseModal();
+      } catch (error) {
+        console.log("error: ", error);
+      }
+    }
 
-  const handleDeleteClick = (id) => () => {
+    // call below functions once add/edit api exicuted successfully
+  };
+  const handleDeleteClick = async (id) => {
     //setRows(rows.filter((row) => row.id !== id));
     alert(`are you sure you want to delete ${id}`);
 
-    // call below functions once delete api exicuted successfully
-    refetch();
+    try {
+      await deleteMR(id);
+      refetch();
+    } catch (error) {
+      console.log("error: ", error);
+    }
   };
 
   const processRowUpdate = (newRow) => {
@@ -110,7 +151,7 @@ function MR() {
             key={row._id}
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={handleDeleteClick(row._id)}
+            onClick={() => handleDeleteClick(row._id)}
             color="inherit"
           />,
         ];
@@ -132,23 +173,7 @@ function MR() {
       </GridToolbarContainer>
     );
   };
-  const handleCloseModal = () => {
-    setIsOpenModal(false);
-    setSelectedRow(null);
-  };
-  const handleSave = (data) => {
-    console.log("data: ", data);
-    if (selectedRow) {
-      // write api for update record
-    } else {
-      // write api for add record
-      const { data, isLoading } = useAddUpdateMRMutation(data);
-    }
 
-    // call below functions once add/edit api exicuted successfully
-    refetch();
-    handleCloseModal();
-  };
   return (
     data?.results.length > 0 && (
       <Box
@@ -173,16 +198,16 @@ function MR() {
           processRowUpdate={processRowUpdate}
           slots={{
             toolbar: GridToolbar,
-            panel: EditToolbar
+            panel: EditToolbar,
           }}
           slotProps={{
-            toolbar: {showQuickFilter: true, setRows, setRowModesModel },
+            toolbar: { showQuickFilter: true, setRows, setRowModesModel },
           }}
           // disableColumnFilter
           // disableColumnSelector
           // disableDensitySelector
         />
-        
+
         <AddEditModal
           open={isOpenModal}
           handleClose={handleCloseModal}

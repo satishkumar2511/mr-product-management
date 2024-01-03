@@ -3,7 +3,7 @@ import { appApi } from "../appApi";
 export const mrService = appApi.injectEndpoints({
   endpoints: (builder) => ({
     // Login Authentication
-    addUpdateMR: builder.mutation({
+    addMR: builder.mutation({
       query: (body) => {
         return {
           url: "/mr/addMRAndCreateUser",
@@ -11,7 +11,7 @@ export const mrService = appApi.injectEndpoints({
           body: body,
         };
       },
-      invalidatesTags: ["UserAuth"],
+      invalidatesTags: ["ManageMr"],
     }),
     getAllMRList: builder.query({
       query: () => {
@@ -22,34 +22,35 @@ export const mrService = appApi.injectEndpoints({
       },
       invalidatesTags: ["ManageMr"],
     }),
+    updateMR: builder.mutation({
+      query: (body) => {
+        return {
+          url: "/mr",
+          method: "PUT",
+          body: body,
+        };
+      },
+      invalidatesTags: ["ManageMr"],
+    }),
 
-    // updateUser: builder.mutation({
-    //   query: (payload) => {
-    //     return {
-    //       url: "/users/me",
-    //       method: "PUT",
-    //       body: payload,
-    //     };
-    //   },
-    //   invalidatesTags: ["ManageUser"],
-    // }),
-
-    // deleteUser: builder.mutation({
-    //   query: () => {
-    //     return {
-    //       url: "/users/me",
-    //       method: "DELETE",
-    //     };
-    //   },
-    //   invalidatesTags: ["ManageUser"],
-    // }),
+    deleteMR: builder.mutation({
+      query: (id) => {
+        return {
+          url: `/mr/${id}`,
+          method: "DELETE",
+        };
+      },
+      invalidatesTags: ["ManageUser"],
+    }),
   }),
   //overrideExisting: false,
 });
 
 export const {
   useGetAllMRListQuery,
-  useAddUpdateMRMutation,
+  useAddMRMutation,
+  useUpdateMRMutation,
+  useDeleteMRMutation,
   // useGetUserDetailsQuery,
   // useUpdateUserMutation,
   // useDeleteUserMutation,
