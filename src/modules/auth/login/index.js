@@ -1,10 +1,10 @@
 import React from "react";
 import Login from "./loginPage";
 import { useLoginWithEmailMutation } from "../../../store/api/auth";
-import { SetToken, ShowNotification } from "../../../utils/helper";
+import { SetToken, ShowNotification, SetLoggedInUserDetails } from "../../../utils/helper";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { path } from "../../../utils/constant";
+import { path, role } from "../../../utils/constant";
 
 function LoginContainer() {
   const dispatch = useDispatch();
@@ -14,16 +14,30 @@ function LoginContainer() {
 
   const getLoggedIn = async (payload) => {
     console.log("payload: ", payload);
-    SetToken(dispatch, "example");
-    navigate(path.PLAYGROUND_PAGE);
-    ShowNotification('loggedIn','success')
+    //SetToken(dispatch, "example");
+   
+    //ShowNotification('loggedIn','success')
     if (payload) {
       try {
         const { data } = await loginWithEmail(payload);
+        console.log("User login data: ", data);
+        console.log(data);
         if (data?.status_code === 200) {
-          ShowNotification(data.message, "success");
-          SetToken(dispatch, "example");
           navigate(path.PLAYGROUND_PAGE);
+          ShowNotification(data.message, "success");
+          SetToken(dispatch, data.token);
+          SetLoggedInUserDetails(dispatch, data.user);
+          if(data.user.role_id === role.ADMIN)
+          {
+            navigate(path.MR_PAGE);
+          }
+          else{
+            navigate(path.MR_PAGE);
+          }
+          
+        }
+        else{
+          ShowNotification(data.message, "error");
         }
       } catch (err) {
         console.log("err: ", err);

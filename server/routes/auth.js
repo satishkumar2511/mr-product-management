@@ -9,7 +9,7 @@ import { mailService } from '../services/mailService.js'
 
 dotenv.config()
 
-const secretKey = process.env.SECRETKEY
+const secretKey = "hj$&*(kdfdnnif)#^&*";//process.env.SECRETKEY
 
 const router = express.Router()
 
@@ -21,7 +21,7 @@ router.post('/login', async (req, res) => {
   let query = {
     $and: [
       {
-        user_name: email
+        email: email
       },
       {
         password:password
@@ -33,13 +33,16 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne(query)
     if (!user) {
       console.log("user is not found");
-      return res.status(401).send('Unauthorized')
+      res.status(200).send({ message: 'Invalid Email or Password, Please verify once', status_code :401 })
     }
-    const token = jwt.sign({ id: user._id }, secretKey, {
-      expiresIn: '6h',
-    })
-
-    res.status(200).send({ message: 'Login successful', user, token })
+    else{
+      const token = jwt.sign({ id: user._id }, secretKey, {
+        expiresIn: '6h',
+      })
+  
+      res.status(200).send({ message: 'Login successful', user, token, status_code :200 })
+    }
+   
   } catch (err) {
     return res.status(500).send('Internal Server Error')
   }

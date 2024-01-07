@@ -70,30 +70,82 @@ router.get('/getMRDetails/:id', async (req, res) => {
 
 // Add a new document to the collection
 router.post('/addMRAndCreateUser', async (req, res) => {
-  let user_collection = db.collection('user_master')
-  let user_Document = GetUserModel('6579ee489285026e3374cc17')
-  user_Document.user_first_name = req.body.mr_first_name
-  user_Document.user_last_name = req.body.mr_last_name
-  user_Document.email = req.body.email
-  user_Document.password = req.body.password
-
-  let user_result = await user_collection.insertOne(user_Document)
-
-  let collection = db.collection('mr_master')
-  let mRDocument = GetMRModel('6579ee489285026e3374cc17')
-  mRDocument.user_id = user_result._id
-  mRDocument.mr_first_name = req.body.mr_first_name
-  mRDocument.mr_last_name = req.body.mr_last_name
-  mRDocument.email = req.body.email
-  mRDocument.password = req.body.password
-
-  newDocument.createdAt = new Date()
-  let result = await collection.insertOne(newDocument)
-  res.send(result).status(204)
+  try{
+    let user_collection = db.collection('user_master')
+    let query = { email : req.body.email};
+    let IfExist = await user_collection.find(query).toArray()
+    if(IfExist.length > 0)
+    {
+      res.send({Success : false, message : "User is already exist"}).status(204)
+    }
+    else{
+      console.log("req.body")
+      console.log(req.body)
+     
+      console.log("user_collection")
+      console.log(user_collection)
+      let user_Document = {
+        user_first_name : req.body.mr_first_name,
+        user_last_name : req.body.mr_last_name,
+        email : req.body.email,
+        password : req.body.password,
+        created_date : new Date(),
+        modified_date : new Date(),
+        isdeleted : 0,
+        created_by : new mongo.ObjectId('6579ee489285026e3374cc17'),
+        modifided_by : new mongo.ObjectId('6579ee489285026e3374cc17'),
+          }
+      //GetUserModel('6579ee489285026e3374cc17')
+      console.log("user_Document")
+      console.log(user_Document)
+      // user_Document.user_first_name = req.body.mr_first_name
+      // user_Document.user_last_name = req.body.mr_last_name
+      // user_Document.email = req.body.email
+      // user_Document.password = req.body.password
+      // console.log("user_Document")
+      // console.log(user_Document)
+      let user_result = await user_collection.insertOne(user_Document)
+      console.log("user_result")
+      console.log(user_result)
+    
+      let collection = db.collection('mr_master')
+      let mRDocument =  {
+        mr_first_name : req.body.mr_first_name,
+        mr_last_name :  req.body.mr_last_name,
+        email : req.body.email,
+        password : req.body.password,
+        created_date : new Date(),
+        modified_date : new Date(),
+        isdeleted : 0,
+        created_by : new mongo.ObjectId('6579ee489285026e3374cc17'),
+        modifided_by : new mongo.ObjectId('6579ee489285026e3374cc17'),
+        user_id : new mongo.ObjectId(user_result.insertedId)
+          }
+      // GetMRModel('6579ee489285026e3374cc17')
+      // mRDocument.user_id = user_result._id
+      // mRDocument.mr_first_name = req.body.mr_first_name
+      // mRDocument.mr_last_name = req.body.mr_last_name
+      // mRDocument.email = req.body.email
+      // mRDocument.password = req.body.password
+      console.log("mRDocument")
+      console.log(mRDocument)
+    
+      //newDocument.createdAt = new Date()
+      let result = await collection.insertOne(mRDocument)
+      console.log("user_result")
+      console.log(result)
+      res.send(result).status(204)
+    }
+    
+  }
+  catch(err){
+    console.log("Error = "+err)
+  }
+  
 })
 
 // Update the user
-router.patch('/updateMRDetails/:id', async (req, res) => {
+router.patch('/updateMRDetails', async (req, res) => {
   const query = { _id: new mongo.ObjectId(req.params.id) }
   const updates = {
     $set: { ...req.body, updatedAt: new Date() },

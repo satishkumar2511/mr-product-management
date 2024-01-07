@@ -1,15 +1,22 @@
 import { useSelector } from "react-redux";
-import { setLanguage, setToken } from "../store/slice/user";
+import { setLanguage, setToken, setLoggedInUserInfo } from "../store/slice/user";
 import { STORE_LANGUAGE_KEY } from "./constant";
 import { DEFAULT_LANGUAGE } from "./config";
 import { toast } from "react-toastify";
 
 export const SetToken = (dispatch, token) => {
   localStorage.setItem("token", token);
-  dispatch(setToken("example"));
+  dispatch(setToken(token));
 };
 export const GetToken = () => localStorage.getItem("token");
 // useSelector((state) => state.user.token) ||
+
+export const SetLoggedInUserDetails = (dispatch, user) => {
+  localStorage.setItem("loggedInUser", JSON.stringify({email :user.email, role_id:user.role_id,user_first_name:user.user_first_name,user_last_name:user.user_last_name,_id:user._id}));
+  dispatch(setLoggedInUserInfo(user));
+}; 
+
+export const GetLoggedInUserDetails = () => localStorage.getItem("loggedInUser");
 
 export const TokenFromState = () =>  useSelector((state) => state.user.token);
 export const RemoveToken = () => localStorage.removeItem("token");

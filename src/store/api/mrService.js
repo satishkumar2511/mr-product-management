@@ -25,7 +25,7 @@ export const mrService = appApi.injectEndpoints({
     updateMR: builder.mutation({
       query: (body) => {
         return {
-          url: "/mr",
+          url: "/mr/updateMRDetails",
           method: "PUT",
           body: body,
         };

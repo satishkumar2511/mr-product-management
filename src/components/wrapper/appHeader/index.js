@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   IconButton,
@@ -11,12 +11,13 @@ import {
 import MuiAppBar from "@mui/material/AppBar";
 import { styled, useTheme } from "@mui/material/styles";
 import { useDispatch } from "react-redux";
-import { GetLanguage, SetLanguage, userLogout } from "../../../utils/helper";
+import { GetLanguage, SetLanguage, userLogout, GetLoggedInUserDetails } from "../../../utils/helper";
 import i18n from "../../../i18n";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { path } from "../../../utils/constant";
 import { drawerWidth } from "../../../utils/config";
+
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -39,6 +40,12 @@ const AppBar = styled(MuiAppBar, {
 const AppHeader = ({ toggleTheme, toggleDrawer, open }) => {
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [loggedInUser, setloggedInUser] = React.useState({});
+
+  
+  React.useEffect(() => {
+    setloggedInUser(GetLoggedInUserDetails())
+  }, [loggedInUser])
 
   const Logout = () => {
     userLogout();
@@ -60,9 +67,12 @@ const AppHeader = ({ toggleTheme, toggleDrawer, open }) => {
 
   const lang = GetLanguage();
 
+  // console.log("loggedInUser")
+  //console.log(loggedInUser)
+
   return (
     // <Box sx={{ flexGrow: 1 }}>
-    <AppBar position="fixed" color="primary" enableColorOnDark open={open}>
+    loggedInUser && <AppBar position="fixed" color="primary" enableColorOnDark open={open}>
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         <Box>
           <IconButton
@@ -102,7 +112,7 @@ const AppHeader = ({ toggleTheme, toggleDrawer, open }) => {
             <MenuItem value={"ja"}>Ja</MenuItem>
           </Select> */}
 
-          <IconButton
+Welcome, {loggedInUser.user_first_name} <IconButton
             size="large"
             aria-label="account of current user"
             aria-controls="menu-appbar"
@@ -136,6 +146,7 @@ const AppHeader = ({ toggleTheme, toggleDrawer, open }) => {
           >
             Theme toggle
           </MenuItem>
+          <MenuItem onClick={Logout}>{loggedInUser.user_first_name} {loggedInUser.user_last_name}</MenuItem>
           <MenuItem onClick={Logout}>Logout</MenuItem>
         </Menu>
       </Toolbar>

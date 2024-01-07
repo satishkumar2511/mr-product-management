@@ -4,7 +4,7 @@ import { STORE_LANGUAGE_KEY } from '../../utils/constant'
 const initialState = {
   token: null,
   [STORE_LANGUAGE_KEY]: '',
-  loggedInUserInfo: {},
+  loggedInUserInfo: {email :'', role_id:0,user_first_name:'',user_last_name:'',_id:''},
 }
 
 const userSlice = createSlice({
@@ -18,9 +18,11 @@ const userSlice = createSlice({
       }
     },
     setLoggedInUserInfo: (state, actions) => {
+      console.log("from reducers :" + actions.payload)
+      console.log(actions.payload)
       return {
         ...state,
-        loggedInUserInfo: actions.payload,
+        loggedInUserInfo: {email :actions.payload.email, role_id:actions.payload.role_id,user_first_name:actions.payload.user_first_name,user_last_name:actions.payload.user_last_name,_id:actions.payload._id},
       }
     },
     setLanguage: (state, actions) => {

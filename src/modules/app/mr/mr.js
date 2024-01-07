@@ -1,5 +1,6 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
+import { ShowNotification } from "../../../utils/helper";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -57,12 +58,19 @@ function MR() {
     setIsOpenModal(false);
     setSelectedRow(null);
   };
-  const handleSave = async (data) => {
-    console.log("data: ", data);
+  const handleSave = async (reqData) => {
+    console.log("data: ");
+    console.log(reqData);
     if (selectedRow) {
       // write api for update record
       try {
-        await updateMR(data);
+        console.log("data from upate")
+        console.log(reqData);
+         let res = await updateMR(reqData); 
+         if(res?.Success == false)
+         {
+          ShowNotification(res.message, 'warning')
+         }
         refetch();
         handleCloseModal();
       } catch (error) {
@@ -71,8 +79,17 @@ function MR() {
     } else {
       // write api for add record
       try {
-       const res = await addMR(data);
-       console.log('res: ', res);
+       const data = await addMR(reqData);
+       console.log("add mr data: ");
+       console.log(data);
+       if(data != null)
+         {
+          ShowNotification(data.data.message, 'warning')
+         }
+         else{
+          ShowNotification("MR Created successfully", 'success')
+         }
+       console.log('res: ', data);
         refetch();
         handleCloseModal();
       } catch (error) {

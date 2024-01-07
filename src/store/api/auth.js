@@ -6,7 +6,7 @@ export const userAuth = appApi.injectEndpoints({
     loginWithEmail: builder.mutation({
       query: (body) => {
         return {
-          url: "/auth/phone",
+          url: "/auth/login",
           method: "POST",
           body: body,
         };

@@ -10,6 +10,11 @@ export const path = {
   PRODUCT_PAGE: "/app/product"
 };
 
+export const role = {
+  ADMIN: 1,
+  MR: 2
+};
+
 export const STORE_LANGUAGE_KEY = "lang";
 export const MenuList = [
   { label: "Dashboard", icon: DashboardIcon, path: path.HOME_PAGE },
