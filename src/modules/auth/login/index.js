@@ -1,7 +1,11 @@
 import React from "react";
 import Login from "./loginPage";
 import { useLoginWithEmailMutation } from "../../../store/api/auth";
-import { SetToken, ShowNotification, SetLoggedInUserDetails } from "../../../utils/helper";
+import {
+  SetToken,
+  ShowNotification,
+  SetLoggedInUserDetails,
+} from "../../../utils/helper";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { path, role } from "../../../utils/constant";
@@ -15,7 +19,7 @@ function LoginContainer() {
   const getLoggedIn = async (payload) => {
     console.log("payload: ", payload);
     //SetToken(dispatch, "example");
-   
+
     //ShowNotification('loggedIn','success')
     if (payload) {
       try {
@@ -27,23 +31,19 @@ function LoginContainer() {
           ShowNotification(data.message, "success");
           SetToken(dispatch, data.token);
           SetLoggedInUserDetails(dispatch, data.user);
-          if(data.user.role_id === role.ADMIN)
-          {
+          if (data.user.role_id === role.ADMIN) {
+            navigate(path.MR_PAGE);
+          } else {
             navigate(path.MR_PAGE);
           }
-          else{
-            navigate(path.MR_PAGE);
-          }
-          
-        }
-        else{
+        } else {
           ShowNotification(data.message, "error");
         }
       } catch (err) {
         console.log("err: ", err);
       }
     }
-       };
-  return <Login onSubmit={(data) => getLoggedIn(data)} />;
+  };
+  return <Login onSubmit={(data) => getLoggedIn(data)} isLoading={isLoading} />;
 }
 export default LoginContainer;

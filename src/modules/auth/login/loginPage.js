@@ -1,8 +1,9 @@
 import React from "react";
-import { Box, Button, TextField } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
+import AppButton from "../../../components/Button";
 
-function Login({ onSubmit }) {
-  const [user, setUser] = React.useState({email:'', password : ''});
+function Login({ onSubmit, isLoading }) {
+  const [user, setUser] = React.useState({ email: "", password: "" });
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -14,7 +15,11 @@ function Login({ onSubmit }) {
   return (
     <>
       <Box sx={style.container}>
-      <TextField
+        <Box sx={style.formContainer}>
+          <Typography variant="h4">LOGIN</Typography>
+          <Typography sx={{ mb: 2 }}>Welcome Back:)</Typography>
+
+          <TextField
             id="outlined-basic"
             label="Email"
             variant="outlined"
@@ -24,6 +29,7 @@ function Login({ onSubmit }) {
             sx={style.inputField}
             onChange={handleChange}
           />
+
           <TextField
             id="outlined-basic"
             label="Password"
@@ -31,14 +37,19 @@ function Login({ onSubmit }) {
             fullWidth
             name="password"
             value={user?.password || ""}
+            sx={style.inputField}
             onChange={handleChange}
           />
-        <Button
-          onClick={() => onSubmit(user)}
-          variant="contained"
-        >
-          Click to login
-        </Button>
+
+          {/* <Button onClick={() => onSubmit(user)} variant="contained" fullWidth>
+            login
+          </Button> */}
+          <AppButton
+            label={"Login"}
+            isLoading={isLoading}
+            onClick={() => onSubmit(user)}
+          />
+        </Box>
       </Box>
     </>
   );
@@ -50,6 +61,17 @@ const style = {
     alignItems: "center",
     minHeight: "99vh",
     flexDirection: "column",
+  },
+  formContainer: {
+    maxWidth: "410px",
+    spacing: 2,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: "100%",
+  },
+  inputField: {
+    mb: 2,
   },
 };
 export default Login;
