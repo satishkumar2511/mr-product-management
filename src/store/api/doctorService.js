@@ -20,19 +20,30 @@ export const doctorService = appApi.injectEndpoints({
           method: "GET",
         };
       },
-      invalidatesTags: ["ManageMr"],
+      invalidatesTags: ["ManageDoctor"],
     }),
 
-    // updateUser: builder.mutation({
-    //   query: (payload) => {
-    //     return {
-    //       url: "/users/me",
-    //       method: "PUT",
-    //       body: payload,
-    //     };
-    //   },
-    //   invalidatesTags: ["ManageUser"],
-    // }),
+    addDoctor: builder.mutation({
+      query: (payload) => {
+        return {
+          url: "/doctor/addDoctor",
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["ManageDoctor"],
+    }),
+
+    updateDoctor: builder.mutation({
+      query: (payload) => {
+        return {
+          url: "/doctor/updateDoctor",
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["ManageDoctor"],
+    }),
 
     // deleteUser: builder.mutation({
     //   query: () => {
@@ -49,7 +60,7 @@ export const doctorService = appApi.injectEndpoints({
 
 export const {
   useGetAllDoctorListQuery,
-  // useGetUserDetailsQuery,
-  // useUpdateUserMutation,
+  useAddDoctorMutation,
+  useUpdateDoctorMutation,
   // useDeleteUserMutation,
 } = doctorService;

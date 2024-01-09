@@ -20,36 +20,47 @@ export const partyService = appApi.injectEndpoints({
           method: "GET",
         };
       },
-      invalidatesTags: ["ManageMr"],
+      invalidatesTags: ["ManageParty"],
     }),
 
-    // updateUser: builder.mutation({
-    //   query: (payload) => {
-    //     return {
-    //       url: "/users/me",
-    //       method: "PUT",
-    //       body: payload,
-    //     };
-    //   },
-    //   invalidatesTags: ["ManageUser"],
-    // }),
+    addParty: builder.mutation({
+      query: (payload) => {
+        return {
+          url: "/party/addParty",
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["ManageParty"],
+    }),
 
-    // deleteUser: builder.mutation({
-    //   query: () => {
-    //     return {
-    //       url: "/users/me",
-    //       method: "DELETE",
-    //     };
-    //   },
-    //   invalidatesTags: ["ManageUser"],
-    // }),
+    updateParty: builder.mutation({
+      query: (payload) => {
+        return {
+          url: "/party/updatePartyDetails",
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["ManageParty"],
+    }),
+
+    deleteParty: builder.mutation({
+      query: () => {
+        return {
+          url: "/party/deleteParty",
+          method: "DELETE",
+        };
+      },
+      invalidatesTags: ["ManageParty"],
+    }),
   }),
   //overrideExisting: false,
 });
 
 export const {
   useGetAllPartyListQuery,
-  // useGetUserDetailsQuery,
-  // useUpdateUserMutation,
-  // useDeleteUserMutation,
+  useAddPartyMutation,
+  useUpdatePartyMutation,
+  //useDeletePartyMutation,
 } = partyService;

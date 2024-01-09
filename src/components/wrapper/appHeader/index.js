@@ -44,7 +44,7 @@ const AppHeader = ({ toggleTheme, toggleDrawer, open }) => {
 
   
   React.useEffect(() => {
-    setloggedInUser(GetLoggedInUserDetails())
+    setloggedInUser(JSON.parse(GetLoggedInUserDetails()))
   }, [loggedInUser])
 
   const Logout = () => {

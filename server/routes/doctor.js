@@ -71,26 +71,50 @@ router.get('/getMRDetails/:id', async (req, res) => {
 })
 
 // Add a new document to the collection
-router.post('/addMRAndCreateUser', async (req, res) => {
-  let collection = db.collection('mr_master')
-  let newDocument = req.body
+router.post('/addDoctor', async (req, res) => {
+  let collection = db.collection('doctor_master')
+  let newDocument = {
+    doctor_name : req.body.doctor_name,
+    pts_ptr : req.body.pts_ptr,
+    pre_post : req.body.pre_post,
+    doctor_dec : req.body.doctor_dec,
+    mr_id : new mongo.ObjectId(req.body.loggedInUserId),
+    created_date : new Date(),
+    modified_date : new Date(),
+    isdeleted : 0,
+    created_by : new mongo.ObjectId(req.body.loggedInUserId),
+    modifided_by : new mongo.ObjectId(req.body.loggedInUserId),
+  }
 
-  newDocument.createdAt = new Date()
   let result = await collection.insertOne(newDocument)
   res.send(result).status(204)
 })
 
 // Update the user
-router.patch('/updateMRDetails/:id', async (req, res) => {
-  const query = { _id: new mongo.ObjectId(req.params.id) }
-  const updates = {
-    $set: { ...req.body, updatedAt: new Date() },
+router.patch('/updateDoctor', async (req, res) => {
+  try{
+    console.log("doctorDetails req")
+    console.log(req.body)
+    const query = { _id: new mongo.ObjectId(req.body._id) }
+    let collection = db.collection('doctor_master')
+    
+    let doctorDetails = {
+      doctor_name : req.body.doctor_name,
+      pts_ptr : req.body.pts_ptr,
+      pre_post : req.body.pre_post,
+      doctor_dec : req.body.doctor_dec,
+      modified_date : new Date(),
+      modifided_by : new mongo.ObjectId(req.body.loggedInUserId),
+    }
+    
+    let result = await collection.updateOne(query, {$set: doctorDetails}, { upsert: true })
+  
+    res.send(result).status(200)
+  } catch (err) {
+    console.log("update Doctor error")
+    console.log(err)
+    res.sendStatus(404)
   }
-
-  let collection = db.collection('mr_master')
-  let result = await collection.updateOne(query, updates)
-
-  res.send(result).status(200)
 })
 
 // Delete an entry

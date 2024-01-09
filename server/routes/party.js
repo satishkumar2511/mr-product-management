@@ -68,26 +68,55 @@ router.get('/getMRDetails/:id', async (req, res) => {
 })
 
 // Add a new document to the collection
-router.post('/addMRAndCreateUser', async (req, res) => {
-  let collection = db.collection('mr_master')
-  let newDocument = req.body
+router.post('/addParty', async (req, res) => {
+  console.log("req.body")
+  console.log(req.body)
+  let mr_collection = db.collection('mr_master')
+  const query = { user_id: new mongo.ObjectId(req.body.loggedInUserId) }
+  let MrDetails = await mr_collection.findOne(query);
+  console.log("MrDetails")
+  console.log(MrDetails)
 
-  newDocument.createdAt = new Date()
+  let collection = db.collection('party_master')
+  let newDocument = {
+    party_name : req.body.party_name,
+        mr_id : MrDetails._id,
+        party_address : req.body.party_address,
+        //password : req.body.password,
+        created_date : new Date(),
+        modified_date : new Date(),
+        isdeleted : 0,
+        created_by : new mongo.ObjectId(req.body.loggedInUserId),
+        modifided_by : new mongo.ObjectId(req.body.loggedInUserId),
+  }
+
   let result = await collection.insertOne(newDocument)
   res.send(result).status(204)
 })
 
 // Update the user
-router.patch('/updateMRDetails/:id', async (req, res) => {
-  const query = { _id: new mongo.ObjectId(req.params.id) }
-  const updates = {
-    $set: { ...req.body, updatedAt: new Date() },
+router.post('/updatePartyDetails', async (req, res) => {
+  try{
+  console.log("partyDetails req")
+  console.log(req.body)
+  const query = { _id: new mongo.ObjectId(req.body._id) }
+  let collection = db.collection('party_master')
+  
+  let partyDetails = {
+    party_name : req.body.party_name,
+    party_address : req.body.party_address,
+    modified_date : new Date(),
+    modifided_by : new mongo.ObjectId(req.body.loggedInUserId),
   }
-
-  let collection = db.collection('mr_master')
-  let result = await collection.updateOne(query, updates)
+  
+  let result = await collection.updateOne(query, {$set: partyDetails}, { upsert: true })
 
   res.send(result).status(200)
+} catch (err) {
+  console.log("update Party error")
+  console.log(err)
+  res.sendStatus(404)
+}
 })
 
 // Delete an entry

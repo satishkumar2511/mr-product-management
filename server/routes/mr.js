@@ -92,6 +92,7 @@ router.post('/addMRAndCreateUser', async (req, res) => {
         created_date : new Date(),
         modified_date : new Date(),
         isdeleted : 0,
+        role_id :2,
         created_by : new mongo.ObjectId('6579ee489285026e3374cc17'),
         modifided_by : new mongo.ObjectId('6579ee489285026e3374cc17'),
           }
@@ -145,7 +146,7 @@ router.post('/addMRAndCreateUser', async (req, res) => {
 })
 
 // Update the user
-router.patch('/updateMRDetails', async (req, res) => {
+router.put('/updateMRDetails', async (req, res) => {
   const query = { _id: new mongo.ObjectId(req.params.id) }
   const updates = {
     $set: { ...req.body, updatedAt: new Date() },

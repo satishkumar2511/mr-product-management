@@ -4,76 +4,43 @@ import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import SaveIcon from "@mui/icons-material/Save";
-import CancelIcon from "@mui/icons-material/Close";
-import { useGetAllPartyListQuery } from "../../../store/api/partyService";
+import {GetLoggedInUserDetails, ShowNotification } from "../../../utils/helper";
+import { useGetAllPartyListQuery, useAddPartyMutation, useUpdatePartyMutation } from "../../../store/api/partyService";
 import {
-  GridRowModes,
+  GridRowEditStopReasons,
   DataGrid,
   GridToolbarContainer,
   GridActionsCellItem,
-  GridRowEditStopReasons,
+  GridToolbar,
 } from "@mui/x-data-grid";
-import {
-  randomId,
-} from "@mui/x-data-grid-generator";
-
-
-function EditToolbar(props) {
-  const { setRows, setRowModesModel } = props;
-
-  const handleClick = () => {
-    const id = randomId();
-    setRows((oldRows) => [...oldRows, { id, name: "", age: "", isNew: true }]);
-    setRowModesModel((oldModel) => ({
-      ...oldModel,
-      [id]: { mode: GridRowModes.Edit, fieldToFocus: "name" },
-    }));
-  };
-
-  return (
-    <GridToolbarContainer>
-      <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-        Add New MR
-      </Button>
-    </GridToolbarContainer>
-  );
-}
+import AddEditPartyModal from "./AddEditPartyModal";
 
 function Party() {
-  const {data, isLoading} = useGetAllPartyListQuery({});
+  const loggedInUser = JSON.parse(GetLoggedInUserDetails());
+  const { data, isLoading, refetch } = useGetAllPartyListQuery(
+    {},
+    { refetchOnMountOrArgChange: true }
+  );
+  const [addParty, { isLoading: isPartyAdding }] = useAddPartyMutation();
+  const [updateParty, { isLoading: isPartyUpdating }] = useUpdatePartyMutation();
+  //const [deleteParty, { isLoading: isPartyDeleting }] = useDeletePartyMutation();
+
+  //const {data, isLoading} = useGetAllPartyListQuery({});
   const [rows, setRows] = React.useState([]);
-  //const mrResponse =  useGetAllMRListQuery({});
-  // const getMRListData = async () => {
-   
-  // }
+  const [isOpenModal, setIsOpenModal] = React.useState(false);
+  const [selectedRow, setSelectedRow] = React.useState(null);
+
   console.log("with start isLoading");
   console.log(isLoading);
 
   React.useEffect(() => {
-    //setIsLoading(true);
-    
-    console.log("with end isLoading");
-    console.log(isLoading);
-    //setIsLoading(false);
-    console.log("partyResponse");
-    console.log(data);
-    if(data != null)
-    {
-      let partyResponse = data.results.map((item) => 
-      Object.assign({}, item, {id:item._id})
+    if (data != null) {
+      let partyResponse = data.results.map((item) =>
+        Object.assign({}, item, { id: item._id })
       );
-      // for (let index = 0; index < data.results.length; index++) {
-      //   doctorResponse.push(data.results[index]);
-      //   doctorResponse[index]['id'] = data.results[index]._id;
-      // }
-      console.log("setting row data");
-      console.log(partyResponse);
       setRows(partyResponse);
     }
-    
-  
-  }, [isLoading, data])
+  }, [isLoading, data]);
   
   
   
@@ -85,27 +52,68 @@ function Party() {
     }
   };
 
-  const handleEditClick = (id) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  const handleEditClick = (row) => () => {
+    setSelectedRow(row);
+    setIsOpenModal(true);
+    //setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
-
-  const handleSaveClick = (id) => () => {
-    setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+  const handleCloseModal = () => {
+    setIsOpenModal(false);
+    setSelectedRow(null);
   };
+  const handleSave = async (reqData) => {
+    console.log("loggedInUser from Party");
+    //console.log(JSON.parse(loggedInUser)._id);
+    reqData.loggedInUserId = loggedInUser._id;
+    console.log("data: ");
+    console.log(reqData);
+    if (selectedRow) {
+      // write api for update record
+      try {
+        console.log("data from upate")
+        console.log(reqData);
+         let res = await updateParty(reqData); 
+         if(res?.Success == false)
+         {
+          ShowNotification(res.message, 'warning')
+         }
+        refetch();
+        handleCloseModal();
+      } catch (error) {
+        console.log("error: ", error);
+      }
+    } else {
+      // write api for add record
+      try {
+       const data = await addParty(reqData);
+       console.log("add mr data: ");
+       console.log(data);
+       if(data != null)
+         {
+          ShowNotification(data.data.message, 'warning')
+         }
+         else{
+          ShowNotification("MR Created successfully", 'success')
+         }
+       console.log('res: ', data);
+        refetch();
+        handleCloseModal();
+      } catch (error) {
+        console.log("error: ", error);
+      }
+    }
 
-  const handleDeleteClick = (id) => () => {
-    setRows(rows.filter((row) => row.id !== id));
+    // call below functions once add/edit api exicuted successfully
   };
-
-  const handleCancelClick = (id) => () => {
-    setRowModesModel({
-      ...rowModesModel,
-      [id]: { mode: GridRowModes.View, ignoreModifications: true },
-    });
-
-    const editedRow = rows.find((row) => row.id === id);
-    if (editedRow.isNew) {
-      setRows(rows.filter((row) => row.id !== id));
+  const handleDeleteClick = async (id) => {
+    //setRows(rows.filter((row) => row.id !== id));
+    //alert(`are you sure you want to delete ${id}`);
+   console.group("delete party called")
+    try {
+      //await deleteParty(id);
+      //refetch();
+    } catch (error) {
+      console.log("error: ", error);
     }
   };
 
@@ -120,10 +128,18 @@ function Party() {
   };
 
   const columns = [
-    { field: "party_id", headerName: "Party Id", width: 180, editable: true },
+    { field: "_id", headerName: "Party Id", width: 180, editable: true },
     {
       field: "party_name",
       headerName: "Party Name",
+      width: 180,
+      align: "left",
+      headerAlign: "left",
+      editable: true,
+    },
+    {
+      field: "party_address",
+      headerName: "Party Address",
       width: 180,
       align: "left",
       headerAlign: "left",
@@ -136,51 +152,42 @@ function Party() {
       headerName: "Actions",
       width: 100,
       cellClassName: "actions",
-      getActions: ({ _id }) => {
-        const isInEditMode = rowModesModel[_id]?.mode === GridRowModes.Edit;
-
-        if (isInEditMode) {
-          return [
-            <GridActionsCellItem
-            key={_id}
-              icon={<SaveIcon />}
-              label="Save"
-              sx={{
-                color: "primary.main",
-              }}
-              onClick={handleSaveClick(_id)}
-            />,
-            <GridActionsCellItem
-            key={_id}
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelClick(_id)}
-              color="inherit"
-            />,
-          ];
-        }
-
+      getActions: ({ row }) => {
         return [
           <GridActionsCellItem
-          key={_id}
+          key={row._id}
             icon={<EditIcon />}
             label="Edit"
             className="textPrimary"
-            onClick={handleEditClick(_id)}
+            onClick={handleEditClick(row)}
             color="inherit"
           />,
           <GridActionsCellItem
-          key={_id}
+          key={row._id}
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={handleDeleteClick(_id)}
+            //onClick={handleDeleteClick(row._id)}
             color="inherit"
           />,
         ];
       },
     },
   ];
+
+  const EditToolbar = (props) => {
+    // const { setRows, setRowModesModel } = props;
+    return (
+      <GridToolbarContainer>
+        <Button
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => setIsOpenModal(true)}
+        >
+          Add New Party
+        </Button>
+      </GridToolbarContainer>
+    );
+  };
 
   return (
     data?.results.length > 0 &&
@@ -199,19 +206,26 @@ function Party() {
       <DataGrid
         rows={rows}
         columns={columns}
-        editMode="row"
+        //editMode="row"
         rowModesModel={rowModesModel}
         onRowModesModelChange={handleRowModesModelChange}
         onRowEditStop={handleRowEditStop}
         processRowUpdate={processRowUpdate}
         slots={{
-          toolbar: EditToolbar,
+          toolbar: GridToolbar,
+          panel: EditToolbar,
         }}
         slotProps={{
-          toolbar: { setRows, setRowModesModel },
+          toolbar: { showQuickFilter: true, setRows, setRowModesModel },
         }}
         
       />
+       <AddEditPartyModal
+          open={isOpenModal}
+          handleClose={handleCloseModal}
+          initData={selectedRow}
+          handleSave={handleSave}
+        />
     </Box>
   );
 }

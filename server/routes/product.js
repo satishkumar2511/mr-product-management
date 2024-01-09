@@ -68,26 +68,49 @@ router.get('/getMRDetails/:id', async (req, res) => {
 })
 
 // Add a new document to the collection
-router.post('/addMRAndCreateUser', async (req, res) => {
-  let collection = db.collection('mr_master')
-  let newDocument = req.body
+router.post('/addProduct', async (req, res) => {
+  let collection = db.collection('product_master')
+  let newDocument = {
+    product_name : req.body.product_name,
+    product_des : req.body.product_des,
+    pts : req.body.pts,
+    ptr : req.body.ptr,
+    created_date : new Date(),
+    modified_date : new Date(),
+    isdeleted : 0,
+    created_by : new mongo.ObjectId(req.body.loggedInUserId),
+    modifided_by : new mongo.ObjectId(req.body.loggedInUserId),
+  }
 
-  newDocument.createdAt = new Date()
   let result = await collection.insertOne(newDocument)
   res.send(result).status(204)
 })
 
 // Update the user
-router.patch('/updateMRDetails/:id', async (req, res) => {
-  const query = { _id: new mongo.ObjectId(req.params.id) }
-  const updates = {
-    $set: { ...req.body, updatedAt: new Date() },
+router.post('/updateProduct', async (req, res) => {
+  try{
+    console.log("partyDetails req")
+    console.log(req.body)
+    const query = { _id: new mongo.ObjectId(req.body._id) }
+    let collection = db.collection('product_master')
+    
+    let productDetails = {
+      product_name : req.body.product_name,
+      product_des : req.body.product_des,
+      pts : req.body.pts,
+      ptr : req.body.ptr,
+      modified_date : new Date(),
+      modifided_by : new mongo.ObjectId(req.body.loggedInUserId),
+    }
+    
+    let result = await collection.updateOne(query, {$set: productDetails}, { upsert: true })
+  
+    res.send(result).status(200)
+  } catch (err) {
+    console.log("update Product error")
+    console.log(err)
+    res.sendStatus(404)
   }
-
-  let collection = db.collection('mr_master')
-  let result = await collection.updateOne(query, updates)
-
-  res.send(result).status(200)
 })
 
 // Delete an entry

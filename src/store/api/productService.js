@@ -23,16 +23,27 @@ export const productService = appApi.injectEndpoints({
       invalidatesTags: ["ManageMr"],
     }),
 
-    // updateUser: builder.mutation({
-    //   query: (payload) => {
-    //     return {
-    //       url: "/users/me",
-    //       method: "PUT",
-    //       body: payload,
-    //     };
-    //   },
-    //   invalidatesTags: ["ManageUser"],
-    // }),
+    addProduct: builder.mutation({
+      query: (payload) => {
+        return {
+          url: "/product/addProduct",
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["ManageUser"],
+    }),
+
+    updateProduct: builder.mutation({
+      query: (payload) => {
+        return {
+          url: "/product/updateProduct",
+          method: "POST",
+          body: payload,
+        };
+      },
+      invalidatesTags: ["ManageUser"],
+    }),
 
     // deleteUser: builder.mutation({
     //   query: () => {
@@ -49,7 +60,7 @@ export const productService = appApi.injectEndpoints({
 
 export const {
   useGetAllProductListQuery,
-  // useGetUserDetailsQuery,
-  // useUpdateUserMutation,
+  useAddProductMutation,
+  useUpdateProductMutation,
   // useDeleteUserMutation,
 } = productService;
