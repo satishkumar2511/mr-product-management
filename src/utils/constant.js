@@ -7,7 +7,8 @@ export const path = {
   MR_PAGE: "/app/mr",
   DOCTOR_PAGE: "/app/doctor",
   PARTY_PAGE: "/app/party",
-  PRODUCT_PAGE: "/app/product"
+  PRODUCT_PAGE: "/app/product",
+  UploadFile_PAGE: "/app/uploadFile"
 };
 
 export const role = {
@@ -21,5 +22,6 @@ export const MenuList = [
   { label: "MR", icon: DashboardIcon, path: path.MR_PAGE },
   { label: "Product", icon: DashboardIcon, path: path.PRODUCT_PAGE },
   { label: "Doctor", icon: DashboardIcon, path: path.DOCTOR_PAGE },
-  { label: "Party", icon: DashboardIcon, path: path.PARTY_PAGE }
+  { label: "Party", icon: DashboardIcon, path: path.PARTY_PAGE },
+  { label: "Upload File", icon: DashboardIcon, path: path.UploadFile_PAGE }
 ];

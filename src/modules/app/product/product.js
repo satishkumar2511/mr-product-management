@@ -56,6 +56,11 @@ function Product() {
     setIsOpenModal(true);
     //setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
   };
+  const handleAddClick = () => () => {
+    setSelectedRow(null);
+    setIsOpenModal(true);
+    //setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
+  };
   const handleCloseModal = () => {
     setIsOpenModal(false);
     setSelectedRow(null);

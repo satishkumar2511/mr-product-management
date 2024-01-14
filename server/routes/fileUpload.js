@@ -6,7 +6,7 @@ import { VerifyToken } from '../helper/verifyToken.js'
 const router = express.Router()
 // const objectId = new ObjectId();
 // Get a list of users
-router.get('/getProductList', async (req, res) => {
+router.get('/getPartyList', async (req, res) => {
   const {
     searchText,
     sortBy,
@@ -15,7 +15,7 @@ router.get('/getProductList', async (req, res) => {
     page = 0,
     pageLimit = 1,
   } = req.query
-  let collection = db.collection('product_master')
+  let collection = db.collection('party_master')
   const limit = Number(pageLimit)
 
   try {
@@ -68,49 +68,55 @@ router.get('/getMRDetails/:id', async (req, res) => {
 })
 
 // Add a new document to the collection
-router.post('/addProduct', async (req, res) => {
-  let collection = db.collection('product_master')
-  let newDocument = {
-    product_name : req.body.product_name,
-    product_des : req.body.product_des,
-    pts : new mongo.Decimal128(req.body.pts),
-    ptr : new mongo.Decimal128(req.body.ptr),
-    created_date : new Date(),
-    modified_date : new Date(),
-    isdeleted : 0,
-    created_by : new mongo.ObjectId(req.body.loggedInUserId),
-    modifided_by : new mongo.ObjectId(req.body.loggedInUserId),
-  }
+router.post('/uploadProductSales', async (req, res) => {
+  console.log("req.body file data")
+  console.log(req.body)
+  let sales_collection = db.collection('mr_party_dr_product_sales')
+  // const query = { user_id: new mongo.ObjectId(req.body.loggedInUserId) }
+  // let MrDetails = await mr_collection.findOne(query);
+  // console.log("MrDetails")
+  // console.log(MrDetails)
 
-  let result = await collection.insertOne(newDocument)
-  res.send(result).status(204)
+  // let collection = db.collection('party_master')
+  // let newDocument = {
+  //   party_name : req.body.party_name,
+  //       mr_id : MrDetails._id,
+  //       party_address : req.body.party_address,
+  //       //password : req.body.password,
+  //       created_date : new Date(),
+  //       modified_date : new Date(),
+  //       isdeleted : 0,
+  //       created_by : new mongo.ObjectId(req.body.loggedInUserId),
+  //       modifided_by : new mongo.ObjectId(req.body.loggedInUserId),
+  // }
+
+  // let result = await collection.insertOne(newDocument)
+  res.send("result").status(204)
 })
 
 // Update the user
-router.post('/updateProduct', async (req, res) => {
+router.post('/updatePartyDetails', async (req, res) => {
   try{
-    console.log("partyDetails req")
-    console.log(req.body)
-    const query = { _id: new mongo.ObjectId(req.body._id) }
-    let collection = db.collection('product_master')
-    
-    let productDetails = {
-      product_name : req.body.product_name,
-      product_des : req.body.product_des,
-      pts : new mongo.Decimal128(req.body.pts),
-      ptr : new mongo.Decimal128(req.body.ptr),
-      modified_date : new Date(),
-      modifided_by : new mongo.ObjectId(req.body.loggedInUserId),
-    }
-    
-    let result = await collection.updateOne(query, {$set: productDetails}, { upsert: true })
+  console.log("partyDetails req")
+  console.log(req.body)
+  const query = { _id: new mongo.ObjectId(req.body._id) }
+  let collection = db.collection('party_master')
   
-    res.send(result).status(200)
-  } catch (err) {
-    console.log("update Product error")
-    console.log(err)
-    res.sendStatus(404)
+  let partyDetails = {
+    party_name : req.body.party_name,
+    party_address : req.body.party_address,
+    modified_date : new Date(),
+    modifided_by : new mongo.ObjectId(req.body.loggedInUserId),
   }
+  
+  let result = await collection.updateOne(query, {$set: partyDetails}, { upsert: true })
+
+  res.send(result).status(200)
+} catch (err) {
+  console.log("update Party error")
+  console.log(err)
+  res.sendStatus(404)
+}
 })
 
 // Delete an entry

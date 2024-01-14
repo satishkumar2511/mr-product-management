@@ -7,6 +7,7 @@ import mr from './routes/mr.js'
 import doctor from './routes/doctor.js'
 import party from './routes/party.js'
 import product from './routes/product.js'
+import fileUpload from './routes/fileUpload.js'
 import 'express-async-errors'
 import dotenv from 'dotenv'
 dotenv.config()
@@ -31,6 +32,8 @@ app.use('/doctor', doctor)
 app.use('/party', party)
 
 app.use('/product', product)
+
+app.use('/fileUpload', fileUpload)
 // Global error handling
 app.use((err, _req, res, next) => {
   res.status(500).send('Uh oh! An unexpected error occured.')
